@@ -16,6 +16,13 @@ uint32_t off_color = strip.Color(0, 0, 0);
 uint8_t position = 0;
 uint8_t pulse = 0;
 
+
+/* TODO 0.0 to 1.0 percent between current and next value. for color fading */
+/* or event based lerping? */
+
+/* TODO gamut values from goggles */
+
+
 /* CLOCK */
 class ClockPositions
 {
@@ -38,7 +45,8 @@ ClockPositions::ClockPositions()
 
 void ClockPositions::update()
 {
-
+  second = map((millis() % 60000), 0, 60000, 0, 15);
+  millis = map((millis() %  1000), 0,  1000, 0, 16);
 }
 
 
@@ -60,15 +68,19 @@ void ClockSegments::draw()
 
 
 
+/* SIMPLE MIXER */
+// add rgb and clamp
+
+
+
+
+
 /* APP */
 ClockPositions positions;
 
 void setup() {
-  delay(100);
   strip.begin();
-  delay(100);
   strip.show(); // Initialize all pixels to 'off'
-  delay(100);
 }
 
 void loop() {
@@ -83,16 +95,15 @@ void milli_looper()
       strip.setPixelColor(i, off_color);
   }
 
-  pulse = map((millis() % 1000), 0, 1000, 0, 60);
 
-  position = map((millis() % 60000), 0, 60000, 0, 15);
   strip.setPixelColor(position, second_color);
-
-  position = map((millis() % 1000), 0, 1000, 0, 16);
   strip.setPixelColor(position, milli_color);
 
   strip.show();
 }
+
+
+
 
 // Fill the dots one after the other with a color
 void colorWipe(uint32_t c, uint32_t wait) {
@@ -102,11 +113,6 @@ void colorWipe(uint32_t c, uint32_t wait) {
       delay(wait);
   }
 }
-
-
-
-/* ADA rainbow, constant brightness */
-
 
 // Slightly different, this makes the rainbow equally distributed throughout
 void rainbowCycle(uint8_t wait) {
