@@ -27,7 +27,7 @@ uint8_t pulse = 0;
 class ClockPositions
 {
  public:
-  uint8_t millis;
+  uint8_t milli;
   uint8_t second;
   uint8_t minute;
   uint8_t hour;
@@ -39,14 +39,14 @@ class ClockPositions
 
 ClockPositions::ClockPositions()
 {
-  millis = second = minute = hour = 0;
+  milli = second = minute = hour = 0;
 }
 
 
 void ClockPositions::update()
 {
   second = map((millis() % 60000), 0, 60000, 0, 15);
-  millis = map((millis() %  1000), 0,  1000, 0, 16);
+  milli = map((millis() %  1000), 0,  1000, 0, 16);
 }
 
 
@@ -56,10 +56,12 @@ void ClockPositions::update()
 class ClockSegments
 {
  public:
-  ClockPositions positions;
-  Adafruit_NeoPixel strip;
+  ClockPositions &positions;
+  Adafruit_NeoPixel &strip;
+  ClockSegments(Adafruit_NeoPixel &n_strip, ClockPositions &n_positions): strip(n_strip), positions(n_positions) {};
   void draw();
 };
+
 
 void ClockSegments::draw()
 {
@@ -77,6 +79,7 @@ void ClockSegments::draw()
 
 /* APP */
 ClockPositions positions;
+ClockSegments  segments(strip, positions);
 
 void setup() {
   strip.begin();
@@ -84,6 +87,7 @@ void setup() {
 }
 
 void loop() {
+  positions.update();
   milli_looper();
 }
 
@@ -96,8 +100,8 @@ void milli_looper()
   }
 
 
-  strip.setPixelColor(position, second_color);
-  strip.setPixelColor(position, milli_color);
+  strip.setPixelColor(positions.second, second_color);
+  strip.setPixelColor(positions.milli, milli_color);
 
   strip.show();
 }
